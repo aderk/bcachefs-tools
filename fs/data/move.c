@@ -725,7 +725,8 @@ static int scrub_stripe_block(struct moving_context *ctxt, struct bch_dev *ca,
 
 	/* a restart goes back to the backpointer walk, which retries the block: */
 	bool gone = false;
-	int ret = scrub_repair_stripe(ctxt, buf, block, &gone);
+	int ret = bch2_trans_relock(trans) ?:
+		scrub_repair_stripe(ctxt, buf, block, &gone);
 	if (gone || bch2_err_matches(ret, BCH_ERR_transaction_restart))
 		return ret;
 
